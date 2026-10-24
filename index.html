@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Quiet hours</title>
+  <meta name="description" content="A night city, slow music, and nothing else.">
+  <meta name="theme-color" content="#0a0f1e">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%230a0f1e'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23f2c98a'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="intro-open">
+
+  <!-- Background video: no sound, loops forever (cut into parts that take turns) -->
+  <video id="bg" class="bg on" muted playsinline autoplay preload="auto"
+         poster="poster.jpg" aria-hidden="true" tabindex="-1"></video>
+  <video id="bg2" class="bg" muted playsinline preload="auto"
+         poster="poster.jpg" aria-hidden="true" tabindex="-1"></video>
+  <div class="veil" id="veil"></div>
+
+  <!-- Centre of the page: time and current track -->
+  <main class="stage" id="stage">
+    <p class="clock" id="clock" aria-hidden="true"></p>
+    <p class="now" id="now" aria-live="polite"></p>
+  </main>
+
+  <!-- Entry screen: browsers only allow sound after a click or tap -->
+  <section class="intro" id="intro" aria-labelledby="introTitle">
+    <h1 id="introTitle">Quiet hours</h1>
+    <p>Night city, slow music. Turn your sound on.</p>
+    <button class="begin" id="begin" type="button">Begin</button>
+  </section>
+
+  <!-- Controls: fade away when idle -->
+  <div class="dock" id="dock" role="group" aria-label="Music controls">
+    <div class="info">
+      <div class="meta">
+        <span class="title" id="title"></span>
+        <span class="artist" id="artist"></span>
+        <span class="times" id="times">0:00 / 0:00</span>
+      </div>
+      <input class="slider" id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek">
+    </div>
+
+    <div class="transport">
+      <button class="icon-btn" id="prev" type="button" aria-label="Previous track" title="Previous (P)">
+        <svg viewBox="0 0 24 24"><path d="M6 5v14M19 6l-9 6 9 6z"/></svg>
+      </button>
+      <button class="icon-btn play-btn" id="play" type="button" aria-label="Play" title="Play / pause (Space)">
+        <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>
+        <svg class="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>
+      </button>
+      <button class="icon-btn" id="next" type="button" aria-label="Next track" title="Next (N)">
+        <svg viewBox="0 0 24 24"><path d="M18 5v14M5 6l9 6-9 6z"/></svg>
+      </button>
+    </div>
+
+    <div class="tools">
+      <button class="icon-btn" id="mute" type="button" aria-label="Mute" title="Mute (M)">
+        <svg class="i-vol" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5zM15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+        <svg class="i-muted" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5zM16 9.5l5 5M21 9.5l-5 5"/></svg>
+      </button>
+      <input class="slider volume" id="volume" type="range" min="0" max="100" value="60" step="1" aria-label="Volume">
+      <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" aria-expanded="false" aria-controls="settings" title="Settings">
+        <svg viewBox="0 0 24 24"><path d="M4 8h9M17 8h3M4 16h3M11 16h9"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/></svg>
+        <span class="dot" id="sleepDot" hidden></span>
+      </button>
+      <button class="icon-btn" id="fs" type="button" aria-label="Enter full screen" title="Full screen (F)">
+        <svg class="i-enter" viewBox="0 0 24 24"><path d="M5 9V5h4M19 9V5h-4M5 15v4h4M19 15v4h-4"/></svg>
+        <svg class="i-exit" viewBox="0 0 24 24"><path d="M9 5v4H5M15 5v4h4M9 19v-4H5M15 19v-4h4"/></svg>
+      </button>
+    </div>
+
+    <div class="panel" id="settings" role="dialog" aria-label="Settings" hidden>
+      <div class="row">
+        <p class="label" id="sleepLabel">Sleep timer (minutes)</p>
+        <div class="segs" role="group" aria-labelledby="sleepLabel">
+          <button class="seg" type="button" data-sleep="0" aria-pressed="true">Off</button>
+          <button class="seg" type="button" data-sleep="15" aria-pressed="false">15</button>
+          <button class="seg" type="button" data-sleep="30" aria-pressed="false">30</button>
+          <button class="seg" type="button" data-sleep="60" aria-pressed="false">60</button>
+          <button class="seg" type="button" data-sleep="90" aria-pressed="false">90</button>
+        </div>
+        <p class="hint" id="sleepHint">Music fades out gently when time is up.</p>
+      </div>
+
+      <div class="row">
+        <label class="label" for="dim">Dim the video</label>
+        <input class="slider" id="dim" type="range" min="0" max="80" value="20" step="1">
+      </div>
+
+      <div class="row switches">
+        <label class="switch"><input type="checkbox" id="clockToggle" checked><span class="track"></span>Show the time</label>
+        <label class="switch"><input type="checkbox" id="videoToggle" checked><span class="track"></span>Play the video</label>
+      </div>
+
+      <p class="hint keys">Space play or pause · N next · P previous · ← → skip 10 seconds · ↑ ↓ volume · M mute · F full screen</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <audio id="audio" preload="metadata"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
